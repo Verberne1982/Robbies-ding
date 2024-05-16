@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robbies ding</title>
+</head>
+<body>
+    <div>
+        <h2>Gegevens toevoegen</h2>
+        <div>
+            <label for="naamInput">Naam:</label>
+            <input type="text" id="naamInput">
+        </div>
+        <div>
+            <label for="locatieInput">Locatie:</label>
+            <input type="text" id="locatieInput">
+        </div>
+        <div>
+            <label for="beschrijvingInput">Beschrijving:</label>
+            <input type="text" id="beschrijvingInput">
+        </div>
+        <button onclick="voegGegevensToe()">Gegevens toevoegen</button>
+    </div>
+
+    <div>
+        <h2>Gegevens ophalen</h2>
+        <div>
+            <label for="idInput">ID:</label>
+            <input type="text" id="idInput">
+        </div>
+        <button onclick="haalGegevensOp('id')">Gegevens ophalen op ID</button>
+
+        <div>
+            <label for="naamInputOphalen">Naam:</label>
+            <input type="text" id="naamInputOphalen">
+        </div>
+        <button onclick="haalGegevensOp('naam')">Gegevens ophalen op naam</button>
+
+        <div>
+            <label for="locatieInputOphalen">Locatie:</label>
+            <input type="text" id="locatieInputOphalen">
+        </div>
+        <button onclick="haalGegevensOp('locatie')">Gegevens ophalen op locatie</button>
+
+        <div>
+            <label for="beschrijvingInputOphalen">Beschrijving:</label>
+            <input type="text" id="beschrijvingInputOphalen">
+        </div>
+        <button onclick="haalGegevensOp('beschrijving')">Gegevens ophalen op beschrijving</button>
+    </div>
+
+    <div id="gegevens"></div>
+
+    <script>
+        async function voegGegevensToe() {
+            try {
+                const naam = document.getElementById('naamInput').value;
+                const locatie = document.getElementById('locatieInput').value;
+                const beschrijving = document.getElementById('beschrijvingInput').value;
+
+                // Maak een object met de ingevoerde gegevens
+                const data = {
+                    naam: naam,
+                    locatie: locatie,
+                    beschrijving: beschrijving
+                };
+
+                // Maak een HTTP-verzoek naar de server om gegevens toe te voegen
+                const response = await fetch('/api/gegevens', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    console.log('Gegevens succesvol toegevoegd!');
+                } else {
+                    console.error('Er is een fout opgetreden bij het toevoegen van de gegevens.');
+                }
+            } catch (error) {
+                console.error('Er is een fout opgetreden bij het toevoegen van de gegevens:', error);
+            }
+        }
+
+        async function haalGegevensOp(type) {
+            try {
+                let queryParam = '';
+                let value = '';
+
+                if (type === 'id') {
+                    value = document.getElementById('idInput').value;
+                    queryParam = `id=${value}`;
+                } else if (type === 'naam') {
+                    value = document.getElementById('naamInputOphalen').value;
+                    queryParam = `naam=${value}`;
+                } else if (type === 'locatie') {
+                    value = document.getElementById('locatieInputOphalen').value;
+                    queryParam = `locatie=${value}`;
+                } else if (type === 'beschrijving') {
+                    value = document.getElementById('beschrijvingInputOphalen').value;
+                    queryParam = `beschrijving=${value}`;
+                }
+
+                // Maak een HTTP-verzoek naar de server om gegevens op te halen
+                const response = await fetch(`/api/gegevens?${queryParam}`);
+                const data = await response.json();
+
+                // Toon de gegevens in de HTML
+                const gegevensDiv = document.getElementById('gegevens');
+                gegevensDiv.innerHTML = '';
+
+                data.forEach(item => {
+                    const p = document.createElement('p');
+                    p.textContent = `ID: ${item.ID}, Naam: ${item.naam}, Locatie: ${item.locatie}, Beschrijving: ${item.beschrijving}`;
+                    gegevensDiv.appendChild(p);
+                });
+            } catch (error) {
+                console.error('Er is een fout opgetreden bij het ophalen van de gegevens:', error);
+            }
+        }
+    </script>
+</body>
+</html>
